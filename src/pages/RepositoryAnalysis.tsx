@@ -22,11 +22,11 @@ import {
   Trash2,
   Activity,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/Skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/ui";
 import { buildApiUrl } from "@/services/apiConfig";
 import { RepositoryAnalysisSkeleton } from "@/components/ui/RepositoryAnalysisSkeleton";
 
@@ -227,18 +227,13 @@ export default function RepositoryAnalysis() {
         {loading ? (
           <RepositoryAnalysisSkeleton />
         ) : !job ? (
-  <div className="text-center py-12 flex flex-col items-center gap-4">
-    <Activity className="h-12 w-12 text-muted-foreground/50" />
-    <div>
-      <h3 className="font-semibold text-lg">No analysis jobs found</h3>
-      <p className="text-sm text-muted-foreground mt-1">
-        Run your first analysis to get started
-      </p>
-    </div>
-    <button onClick={() => router.push('/dashboard')}>
-      Go to Dashboard
-    </button>
-  </div>
+          <EmptyState
+            icon={Activity}
+            title="No analysis jobs found"
+            description="We couldn't find any analysis history for this repository. Run your first analysis to get started!"
+            actionLabel="Go to Dashboard"
+            onAction={() => router.push("/dashboard")}
+          />
         ) : (
           <>
             {/* Header with back button */}
