@@ -488,10 +488,7 @@ export class RepositoryService {
       console.log(`Repository ${repositoryId} analysis completed`);
     } catch (error: any) {
       console.error(`Error analyzing repository ${repositoryId}:`, error);
-      await prisma.repository.update({
-        where: { id: repositoryId },
-        data: { status: "failed" },
-      });
+      await this.markRepositoryFailed(repositoryId, error.message);
       await report({ progressMessage: "Failed" });
       throw error;
     } finally {
@@ -499,6 +496,24 @@ export class RepositoryService {
       if (gitService) {
         await gitService.cleanup();
       }
+    }
+  }
+
+  /**
+   * Safely marks a repository as failed, preventing uncaught exceptions
+   * if the database update fails.
+   */
+  async markRepositoryFailed(id: number, reason?: string) {
+    try {
+      await prisma.repository.update({
+        where: { id },
+        data: { status: "failed" },
+      });
+      if (reason) {
+        console.log(`Repository ${id} marked as failed. Reason: ${reason}`);
+      }
+    } catch (error) {
+      console.error(`Safeguard: Failed to update repository ${id} status to 'failed'`, error instanceof Error ? error.message : String(error));
     }
   }
 
