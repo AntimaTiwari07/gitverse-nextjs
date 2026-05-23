@@ -283,7 +283,7 @@ export default function Settings() {
     if (deleteConfirmText !== "DELETE") return;
 
     setShowDeleteModal(false);
-    setIsDeletingAccount(true);
+    setDeleteConfirmText("");
 
     setIsDeletingAccount(true);
     try {
