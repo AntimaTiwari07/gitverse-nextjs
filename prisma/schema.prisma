@@ -181,6 +181,7 @@ model Repository {
   analysisJobs   AnalysisJob[]
   @@index([url])
   @@map("repositories")
+  @@index([userId])
 }
 
 model AnalysisJob {
