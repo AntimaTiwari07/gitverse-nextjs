@@ -16,12 +16,25 @@ function computeBackoffMs(attempt: number): number {
   return Math.min(max, base * Math.pow(2, Math.max(0, attempt - 1)));
 }
 
+import { HttpError } from "../middleware";
+
 export class AnalysisJobService {
   async createRepositoryAnalysisJob(params: {
     repositoryId: number;
     userId: number;
     maxAttempts?: number;
   }): Promise<AnalysisJob> {
+    const existingJob = await prisma.analysisJob.findFirst({
+      where: {
+        repositoryId: params.repositoryId,
+        status: { in: ["QUEUED", "PROCESSING"] },
+      },
+    });
+
+    if (existingJob) {
+      throw new HttpError(409, "An active analysis job already exists for this repository");
+    }
+
     return prisma.analysisJob.create({
       data: {
         repositoryId: params.repositoryId,
