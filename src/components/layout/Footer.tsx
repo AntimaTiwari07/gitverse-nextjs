@@ -112,7 +112,7 @@ export const Footer: React.FC = () => {
               href="https://x.com/nisshchayarathi"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="X formerly Twitter"
+              aria-label="X (formerly Twitter)"
               className="hover:text-primary transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -123,6 +123,7 @@ export const Footer: React.FC = () => {
               href="https://github.com/nisshchayarathi/gitverse-nextjs"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="GitHub"
               className="hover:text-primary transition-colors"
             >
               <Github size={20} />
@@ -131,11 +132,12 @@ export const Footer: React.FC = () => {
               href="https://www.linkedin.com/in/nisshchayarathi"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="LinkedIn"
               className="hover:text-primary transition-colors"
             >
               <Linkedin size={20} />
             </a>
-            <a href="mailto:hello@gitverse.com" className="hover:text-primary transition-colors">
+            <a href="mailto:hello@gitverse.com" aria-label="Email" className="hover:text-primary transition-colors">
               <Mail size={20} />
             </a>
           </div>
