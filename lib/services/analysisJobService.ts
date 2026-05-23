@@ -1,5 +1,6 @@
 import prisma from "../prisma";
 import type { AnalysisJob } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export type JobProgressUpdate = {
   progressPercent?: number;
@@ -22,17 +23,33 @@ export class AnalysisJobService {
     userId: number;
     maxAttempts?: number;
   }): Promise<AnalysisJob> {
-    return prisma.analysisJob.create({
-      data: {
-        repositoryId: params.repositoryId,
-        userId: params.userId,
-        type: "repository_analysis",
-        status: "QUEUED",
-        progressPercent: 0,
-        progressMessage: "Queued",
-        maxAttempts: params.maxAttempts ?? 3,
-      },
-    });
+    try {
+      return await prisma.analysisJob.create({
+        data: {
+          repositoryId: params.repositoryId,
+          userId: params.userId,
+          type: "repository_analysis",
+          status: "QUEUED",
+          progressPercent: 0,
+          progressMessage: "Queued",
+          maxAttempts: params.maxAttempts ?? 3,
+        },
+      });
+    } catch (error: any) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        const existingJob = await prisma.analysisJob.findFirst({
+          where: {
+            repositoryId: params.repositoryId,
+            status: { in: ["QUEUED", "PROCESSING"] },
+          },
+        });
+        if (existingJob) return existingJob;
+      }
+      throw error;
+    }
   }
 
   async getJob(params: {
