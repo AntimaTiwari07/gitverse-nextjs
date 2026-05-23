@@ -16,7 +16,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!authHeader.startsWith("Bearer ")) {
+    const parts = authHeader.split(" ");
+
+    if (
+      parts.length !== 2 ||
+      parts[0] !== "Bearer" ||
+      parts[1].trim() === ""
+    ) {
       return NextResponse.json(
         {
           error:
@@ -26,17 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = authHeader.split(" ")[1];
-
-    if (!token || token.trim() === "") {
-      return NextResponse.json(
-        {
-          error:
-            "Malformed Authorization header, expected 'Bearer <token>'",
-        },
-        { status: 400 }
-      );
-    }
+    const token = parts[1];
 
     const user = await getAuthUser(request);
 
@@ -49,6 +45,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: "Logged out successfully",
+      token,
     });
   } catch (error) {
     console.error("Logout error:", error);
