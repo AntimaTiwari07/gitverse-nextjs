@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const context = {
+      targetDirectory: (repository as any).targetDirectory ?? undefined,
       languages: repository.languages.map((l: any) => ({
         name: l.name,
         percentage: l.percentage,

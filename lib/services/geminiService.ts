@@ -9,6 +9,7 @@ export interface AIAnalysisRequest {
     | "architecture"
     | "suggestions";
   context?: {
+    targetDirectory?: string;
     files?: Array<{ path: string; content: string }>;
     commits?: Array<{ message: string; author: string; date: string }>;
     languages?: Array<{ name: string; percentage: number }>;
@@ -180,14 +181,19 @@ Provide only the commit messages, one per line.
   ): string {
     const baseContext = `
 Repository Context:
+- Target directory: ${context?.targetDirectory || "Full repository"}
 - Languages: ${context?.languages?.map((l) => `${l.name} (${l.percentage}%)`).join(", ") || "Unknown"}
 - Contributors: ${context?.contributors?.length || 0}
 - Recent commits: ${context?.commits?.length || 0}
 `;
 
+    const scopeNote = context?.targetDirectory
+      ? `\nImportant: Restrict your analysis to the target directory (${context.targetDirectory}). Only reference files outside this directory if they are immediately required dependencies.\n`
+      : "";
+
     switch (type) {
       case "overview":
-        return `${baseContext}
+        return `${baseContext}${scopeNote}
 
 Provide a comprehensive overview of this repository including:
 1. Primary purpose and functionality
@@ -198,7 +204,7 @@ Provide a comprehensive overview of this repository including:
 Be concise but informative.`;
 
       case "code-quality":
-        return `${baseContext}
+        return `${baseContext}${scopeNote}
 
 Analyze the code quality of this repository:
 1. Code organization and structure
@@ -210,7 +216,7 @@ Analyze the code quality of this repository:
 Provide actionable insights.`;
 
       case "security":
-        return `${baseContext}
+        return `${baseContext}${scopeNote}
 
 Perform a security analysis:
 1. Potential security vulnerabilities
@@ -220,7 +226,7 @@ Perform a security analysis:
 5. Security best practices recommendations`;
 
       case "architecture":
-        return `${baseContext}
+        return `${baseContext}${scopeNote}
 
 Analyze the software architecture:
 1. Overall architecture pattern (MVC, microservices, etc.)
@@ -230,7 +236,7 @@ Analyze the software architecture:
 5. Architectural recommendations`;
 
       case "suggestions":
-        return `${baseContext}
+        return `${baseContext}${scopeNote}
 
 Provide improvement suggestions:
 1. Code refactoring opportunities

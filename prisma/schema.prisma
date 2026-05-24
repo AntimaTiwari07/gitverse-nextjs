@@ -161,6 +161,7 @@ model Repository {
   name           String
   url            String
   description    String?
+  targetDirectory String?      @map("target_directory")
   readmePath     String?       @map("readme_path")
   readmeText     String?       @map("readme_text") @db.Text
   readmeFetchedAt DateTime?    @map("readme_fetched_at")
@@ -184,6 +185,7 @@ model Repository {
   @@index([url])
   @@map("repositories")
   @@index([userId])
+  @@index([userId, url, targetDirectory])
 }
 
 model AnalysisJob {

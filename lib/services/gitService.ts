@@ -682,7 +682,7 @@ export class GitService {
     return languageMap[ext] || null;
   }
 
-  async getFileTree(): Promise<
+  async getFileTree(opts?: { targetDirectory?: string | null }): Promise<
     {
       path: string;
       name: string;
@@ -707,8 +707,15 @@ export class GitService {
         language: string | null;
       }[] = [];
       const filePaths = stdout.trim().split("\n").filter(Boolean);
+      const scopedPrefix =
+        opts?.targetDirectory?.trim()
+          ? `${opts.targetDirectory.trim().replace(/\\/g, "/").replace(/\/+$/, "")}/`
+          : null;
 
       for (const filePath of filePaths) {
+        if (scopedPrefix && !filePath.startsWith(scopedPrefix)) {
+          continue;
+        }
         // Skip ignored files
         if (this.shouldIgnoreFile(filePath)) {
           continue;
@@ -758,9 +765,9 @@ export class GitService {
   /**
    * Detect programming languages in the repository
    */
-  async detectLanguages(): Promise<LanguageData[]> {
+  async detectLanguages(opts?: { targetDirectory?: string | null }): Promise<LanguageData[]> {
     try {
-      const files = await this.getFileTree();
+      const files = await this.getFileTree({ targetDirectory: opts?.targetDirectory ?? null });
 
       const languageStats = new Map<string, { bytes: number; lines: number }>();
       let totalBytes = 0;
