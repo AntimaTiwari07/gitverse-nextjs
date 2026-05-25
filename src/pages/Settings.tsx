@@ -590,6 +590,8 @@ export default function Settings() {
                       <button
                         type="button"
                         onClick={() => setTheme('light')}
+                        aria-pressed={theme === 'light'}
+                        aria-label="Use light mode"
                         className={`flex flex-col items-center justify-center p-6 rounded-xl border transition-all ${
                           theme === 'light'
                             ? 'border-primary bg-primary/5 text-primary'
@@ -603,6 +605,8 @@ export default function Settings() {
                       <button
                         type="button"
                         onClick={() => setTheme('dark')}
+                        aria-pressed={theme === 'dark'}
+                        aria-label="Use dark mode"
                         className={`flex flex-col items-center justify-center p-6 rounded-xl border transition-all ${
                           theme === 'dark'
                             ? 'border-primary bg-primary/5 text-primary'
