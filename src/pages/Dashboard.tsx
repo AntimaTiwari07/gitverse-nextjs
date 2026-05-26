@@ -2,10 +2,8 @@
 
 export const dynamic = "force-dynamic";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { isValidGithubUrl } from "@/lib/utils/validators";
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RecentReposList } from "@/components/RecentReposList";
 import { useRecentRepos } from "@/hooks/useRecentRepos";
@@ -34,7 +32,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { buildApiUrl } from "@/services/apiConfig";
 import axios from "axios";
 import { toast } from "@/hooks/use-toast";
-import { ShortcutHint } from "@/components/ShortcutHint";
 
 interface Repository {
   id: string;
@@ -230,8 +227,6 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("gitverse_token");
 
-      const urlParts = repoUrl.trim().split("/");
-      const repoName = urlParts[urlParts.length - 1];
       // Extract owner and name for recent storage
       const cleanUrl = repoUrl.trim().replace(/\/$/, "").replace(/\.git$/, "");
       const cleanParts = cleanUrl.split("/");
@@ -293,6 +288,31 @@ export default function Dashboard() {
       setAnalyzing(false);
     }
   };
+const formatTimeAgo = (date: string | Date | undefined) => {
+  if (!date) return 'Never';
+  const d = new Date(date);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - d.getTime()) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString();
+};
+
+const recentActivity = repositories
+  .filter((r: any) => r.lastAnalyzedAt || r.createdAt)
+  .slice(0, 5)
+  .map((r: any) => ({
+    action: 'Analyzed',
+    repo: r.name,
+    time: formatTimeAgo(r.lastAnalyzedAt || r.createdAt),
+  }));
+
 if (loading) {
   return (
     <DashboardLayout>
@@ -300,23 +320,23 @@ if (loading) {
         
         {/* Welcome skeleton */}
         <div className="space-y-2">
-          <Skeleton width="250px" height="28px" />
-          <Skeleton width="400px" height="18"/>
+          <Skeleton className="h-7 w-64" />
+          <Skeleton className="h-4 w-96" />
         </div>
 
         {/* Input skeleton */}
         <div className="p-6 border rounded-lg space-y-3">
-          <Skeleton width="100%" height="40" />
-          <Skeleton width="180" height="40" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-44" />
         </div>
 
         {/* Stats skeleton */}
         <div className="grid grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="p-4 border rounded-lg space-y-3">
-              <Skeleton width="60%" height="16" />
-              <Skeleton width="40%" height="28" />
-              <Skeleton width="80%" height="12" />
+              <Skeleton className="h-4 w-3/5" />
+              <Skeleton className="h-7 w-2/5" />
+              <Skeleton className="h-3 w-4/5" />
             </div>
           ))}
         </div>
@@ -324,19 +344,19 @@ if (loading) {
         {/* Cards skeleton */}
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-3">
-            <Skeleton width="40%" height="20" />
+            <Skeleton className="h-5 w-2/5" />
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="p-4 border rounded-lg space-y-2">
-                <Skeleton width="30%" height="18" />
-                <Skeleton width="70%" height="14" />
+                <Skeleton className="h-4 w-3/10" />
+                <Skeleton className="h-3 w-7/10" />
               </div>
             ))}
           </div>
 
           <div className="space-y-3">
-            <Skeleton width="50%" height="20" />
+            <Skeleton className="h-5 w-1/2" />
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} width="100%" height="40" />
+              <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
         </div>
@@ -390,9 +410,7 @@ if (loading) {
                 onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
               />
             </div>
-            <div className="mt-3">
-              <ShortcutHint />
-            </div>
+            {/* Shortcut hint would go here */}
           </CardContent>
         </Card>
 
@@ -488,7 +506,7 @@ if (loading) {
                     </div>
                   ))}
                 </div>
-              ) : recentRepositories.length === 0 ? (
+              ) : repositories.length === 0 ? (
                 <EmptyState
                  icon={GitBranch}
                  title="No repositories yet"
@@ -498,7 +516,7 @@ if (loading) {
                 />
               ) : (
                 <div className="space-y-3">
-                  {recentRepositories.map((repo) => (
+                  {repositories.map((repo: any) => (
                     <div
                       key={repo.id}
                       className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors cursor-pointer glass-hover"
@@ -571,7 +589,7 @@ if (loading) {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {recentActivity.map((activity, index) => (
+                  {recentActivity.map((activity: any, index: number) => (
                   <div key={index} className="flex items-start gap-2 sm:gap-3">
                     <div className="mt-1 p-1.5 rounded-full bg-accent/10 flex-shrink-0">
                       <Activity className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-accent" />
