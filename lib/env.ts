@@ -9,7 +9,8 @@ const requiredEnvVars = [
 function shouldSkipEnvValidation() {
   return (
     process.env.NODE_ENV === "test" ||
-    process.env.CI === "true"
+    process.env.CI === "true" ||
+    process.env.GITHUB_ACTIONS === "true"
   );
 }
 
