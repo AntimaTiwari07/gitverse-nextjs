@@ -3,10 +3,8 @@ name: GSSoC — Auto Assign Issue
 # ─────────────────────────────────────────────────────────────────────────────
 # Runs when someone comments on an issue.
 # • Person comments  "/assign" or "I want to work on this" etc.
-# • Checks how many open issues that person already has assigned
-# • If less than 1  → assigns the issue + posts confirmation comment
-# • If 1 or more   → denies assignment (must solve current issue first)
-# • Only the issue creator or repo owner/maintainer can self-assign an issue
+# • Anyone can self-assign any open issue
+# • Max 1 issue at a time — must resolve before picking another
 # • Daily cap: max 4 new assignments per day per contributor
 # • Maintainer can comment "/unassign @username" to free up a slot
 # • Maintainer can comment "/assign @username" to assign someone manually
@@ -18,7 +16,7 @@ on:
 
 jobs:
   auto-assign:
-    name: Auto Assign Issue (1 at a time, max 3/day)
+    name: Auto Assign Issue (1 at a time, max 4/day)
     runs-on: ubuntu-latest
 
     # Only run on issue comments, not PR comments
@@ -163,31 +161,6 @@ jobs:
                   owner, repo, issue_number: issueNum,
                   body: `Hey @${commenter}! ❌ This issue is already **closed**. Please look for an open issue to contribute to.\n\n_GSSoC'26 automation · [@nisshchayarathi](https://github.com/nisshchayarathi)_`,
                 });
-                return;
-              }
-
-              // ── Check: only issue creator or repo owner can self-assign ──
-              const issueAuthor = issue.user.login;
-              const commenterIsMaintainer = await isMaintainer(commenter);
-
-              if (commenter !== issueAuthor && !commenterIsMaintainer) {
-                await github.rest.issues.createComment({
-                  owner, repo, issue_number: issueNum,
-                  body: [
-                    `## ❌ Assignment Not Allowed — @${commenter}`,
-                    ``,
-                    `You can only self-assign an issue if:`,
-                    `- 🙋 **You created the issue**, or`,
-                    `- 🛡️ **You are a maintainer / repo owner**`,
-                    ``,
-                    `This issue was created by @${issueAuthor}. You are not permitted to assign yourself to issues created by other contributors.`,
-                    ``,
-                    `Feel free to open your own issue if you have a bug or feature to work on! 💡`,
-                    ``,
-                    `_GSSoC'26 automation · [@nisshchayarathi](https://github.com/nisshchayarathi)_`,
-                  ].join('\n'),
-                });
-                console.log(`🚫 @${commenter} tried to self-assign issue #${issueNum} created by @${issueAuthor} — denied.`);
                 return;
               }
 
