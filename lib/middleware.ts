@@ -122,12 +122,27 @@ export async function getAuthUser(
       return null;
     }
 
-    // Reject tokens issued before tokenVersion increments
-    if (
-      userPayload.tokenVersion != null &&
-      userPayload.tokenVersion < dbUser.tokenVersion
-    ) {
-      return null;
+    const isJwtAuth = !!(
+      authHeader &&
+      authHeader.startsWith("Bearer ")
+    );
+
+    // JWT-authenticated users must provide a valid tokenVersion.
+    // This allows logout/password-change invalidation to immediately
+    // revoke previously issued tokens.
+    if (isJwtAuth) {
+      // Reject legacy JWTs without tokenVersion
+      if (userPayload.tokenVersion == null) {
+        return null;
+      }
+
+      // Require exact token version match
+      if (
+        userPayload.tokenVersion !==
+        dbUser.tokenVersion
+      ) {
+        return null;
+      }
     }
   } catch (error) {
     console.error(

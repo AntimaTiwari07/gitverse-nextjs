@@ -15,14 +15,14 @@ export async function POST(request: NextRequest) {
 
     if (!newPassword) {
       return NextResponse.json(
-        { error: "New password is required" },
+        { message: "New password is required" },
         { status: 400 }
       );
     }
 
     if (newPassword.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { message: "Password must be at least 8 characters" },
         { status: 400 }
       );
     }
@@ -33,40 +33,33 @@ export async function POST(request: NextRequest) {
 
     if (!userDetails) {
       return NextResponse.json(
-        { error: "User not found" },
+        { message: "User not found" },
         { status: 404 }
       );
     }
 
     const passwordHash = userDetails.passwordHash;
 
-    if (!passwordHash) {
-      return NextResponse.json(
-        {
-          error:
-            "Cannot set password: account uses OAuth authentication",
-        },
-        { status: 400 }
-      );
-    }
+    // Existing password users must verify current password
+    if (passwordHash) {
+      if (!currentPassword) {
+        return NextResponse.json(
+          { message: "Current password is required" },
+          { status: 400 }
+        );
+      }
 
-    if (!currentPassword) {
-      return NextResponse.json(
-        { error: "Current password is required" },
-        { status: 400 }
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        passwordHash
       );
-    }
 
-    const isPasswordValid = await bcrypt.compare(
-      currentPassword,
-      passwordHash
-    );
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "Current password is incorrect" },
-        { status: 401 }
-      );
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { message: "Current password is incorrect" },
+          { status: 401 }
+        );
+      }
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -104,7 +97,7 @@ export async function POST(request: NextRequest) {
     );
 
     return NextResponse.json(
-      { error: "Failed to change password" },
+      { message: "Failed to change password" },
       { status: 500 }
     );
   }
