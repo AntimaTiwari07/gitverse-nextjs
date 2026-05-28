@@ -304,7 +304,6 @@ export default function Dashboard() {
 
       console.error("Error creating repository:", error);
       const errMsg =
-        error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
         "Failed to analyze repository";
@@ -369,7 +368,6 @@ export default function Dashboard() {
   }
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-background"></div>
       <div className="space-y-6">
         {/* Welcome Section */}
         <div>
@@ -414,7 +412,6 @@ export default function Dashboard() {
                 onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
               />
             </div>
-           
           </CardContent>
         </Card>
 

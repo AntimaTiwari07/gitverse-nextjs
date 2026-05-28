@@ -266,10 +266,7 @@ export class GitService {
         } else {
           const msg = stderr.trim().split("\n").pop() || `exit code ${code}`;
 
-          if (
-            msg.toLowerCase().includes("rate limit") ||
-            msg.toLowerCase().includes("403")
-          ) {
+          if (msg.toLowerCase().includes("rate limit")) {
             reject(
               new Error(
                 "GitHub API rate limit exceeded. Please try again later.",
@@ -783,10 +780,6 @@ export class GitService {
         language: string | null;
       }[] = [];
       const filePaths = stdout.trim().split("\n").filter(Boolean);
-      const scopedPrefix = opts?.targetDirectory?.trim()
-        ? `${opts.targetDirectory.trim().replace(/\\/g, "/").replace(/\/+$/, "")}/`
-        : null;
-
       // Process in chunks to avoid blocking the event loop on huge monorepos
       const concurrencyLimit = 50;
       for (let i = 0; i < filePaths.length; i += concurrencyLimit) {
