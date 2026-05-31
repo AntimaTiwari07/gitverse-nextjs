@@ -1,9 +1,12 @@
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
+import * as fs from "fs/promises";
+import * as path from "path";
+import * as os from "os";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 const SANDBOX_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const CONTAINER_CLEANUP_TIMEOUT_MS = 30 * 1000; // 30 seconds
@@ -38,8 +41,11 @@ async function runDockerCommand(
   timeoutMs: number = 30_000,
 ): Promise<{ stdout: string; stderr: string }> {
   const dockerHost = getDockerHost();
-  const cmd = `DOCKER_HOST=${dockerHost} docker ${args.join(" ")}`;
-  return execAsync(cmd, { timeout: timeoutMs });
+  const result = await execFileAsync("docker", args, {
+    timeout: timeoutMs,
+    env: { ...process.env, DOCKER_HOST: dockerHost },
+  });
+  return { stdout: result.stdout, stderr: result.stderr };
 }
 
 async function buildSandboxImage(
@@ -48,7 +54,7 @@ async function buildSandboxImage(
 ): Promise<string> {
   const imageTag = `gitverse-sandbox:${crypto.randomBytes(8).toString("hex")}`;
 
-  // Create a Dockerfile that clones the repo and sets up a minimal test environment
+  // Create a Dockerfile that uses ARG for safe parameterization
   const dockerfile = `
 FROM node:22-bookworm-slim
 
@@ -58,9 +64,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \\
 
 WORKDIR /app
 
-RUN git clone --depth 1 ${repositoryUrl} . && \\
-    git fetch origin ${headSha} && \\
-    git checkout ${headSha}
+ARG REPO_URL
+ARG TARGET_SHA
+
+RUN git clone --depth 1 ${"$"}{REPO_URL} . && \\
+    git fetch origin ${"$"}{TARGET_SHA} && \\
+    git checkout ${"$"}{TARGET_SHA}
 
 RUN if [ -f package.json ]; then npm install --production 2>/dev/null || true; fi
 RUN if [ -f requirements.txt ]; then pip install -r requirements.txt 2>/dev/null || true; fi
@@ -69,16 +78,23 @@ EXPOSE 3000
 CMD ["echo", "sandbox-ready"]
 `;
 
-  // Write Dockerfile to a temp location and build
-  const tempDir = `/tmp/gitverse-sandbox-${crypto.randomBytes(8).toString("hex")}`;
-  await execAsync(`mkdir -p ${tempDir}`);
-  await execAsync(`echo '${dockerfile.replace(/'/g, "'\\''")}' > ${tempDir}/Dockerfile`);
+  // Write Dockerfile using fs (no shell interpolation)
+  const tempDir = path.join(os.tmpdir(), `gitverse-sandbox-${crypto.randomBytes(8).toString("hex")}`);
+  await fs.mkdir(tempDir, { recursive: true });
+  await fs.writeFile(path.join(tempDir, "Dockerfile"), dockerfile, "utf-8");
 
   try {
-    await runDockerCommand(["build", "-t", imageTag, tempDir], 120_000);
+    // Use --build-arg to pass values safely (no shell interpretation)
+    await runDockerCommand([
+      "build",
+      "--build-arg", `REPO_URL=${repositoryUrl}`,
+      "--build-arg", `TARGET_SHA=${headSha}`,
+      "-t", imageTag,
+      tempDir,
+    ], 120_000);
     return imageTag;
   } finally {
-    await execAsync(`rm -rf ${tempDir}`).catch(() => null);
+    await fs.rm(tempDir, { recursive: true, force: true }).catch(() => null);
   }
 }
 

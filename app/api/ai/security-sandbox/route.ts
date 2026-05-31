@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, sanitizeError, isHttpError } from "@/lib/middleware";
 import { runSecuritySandbox, getSandboxStatus, listSandboxesForRepository } from "@/lib/services/securitySandboxService";
+import { isValidGitSha } from "@/lib/utils/validators";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -12,6 +13,13 @@ export async function POST(request: NextRequest) {
     if (!repositoryId || !headSha) {
       return NextResponse.json(
         { error: "repositoryId and headSha are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidGitSha(headSha)) {
+      return NextResponse.json(
+        { error: "Invalid headSha format. Must be a valid 40-character SHA-1 or 64-character SHA-256 hash." },
         { status: 400 }
       );
     }
