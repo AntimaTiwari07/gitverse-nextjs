@@ -99,11 +99,33 @@ export function useRepositories({ limit = DEFAULT_LIMIT } = {}): UseRepositories
   }, [cursor, hasMore, limit]);
 
   useEffect(() => {
-    if (!initRef.current) {
-      initRef.current = true;
-      fetchRepos();
-    }
-  }, [fetchRepos]);
+  if (!initRef.current) {
+    initRef.current = true;
+
+    const controller = new AbortController();
+
+    const fetchRepos = async () => {
+      try {
+        const res = await fetch("/api/repositories", {
+          signal: controller.signal,
+        });
+
+        const data = await res.json();
+        setRepositories(data);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          setError(err);
+        }
+      }
+    };
+
+    fetchRepos();
+
+    return () => {
+      controller.abort();
+    };
+  }
+}, [fetchRepos]);
 
   const loadMore = useCallback(async () => {
     await fetchRepos(true);
