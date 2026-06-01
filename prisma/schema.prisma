@@ -212,6 +212,7 @@ model Repository {
   reviewPolicies      ReviewPolicy[]
   policyAssignment    RepositoryPolicyAssignment?
   mapAnnotations      MapAnnotation[]
+  knowledge           RepositoryKnowledge?
 
   @@index([url])
   @@index([userId])
@@ -648,5 +649,19 @@ model AnnotationActivity {
 
   @@index([annotationId, createdAt(sort: Desc)])
   @@map("annotation_activities")
+}
+
+model RepositoryKnowledge {
+  id                   Int        @id @default(autoincrement())
+  repositoryId         Int        @unique @map("repository_id")
+  glossary             Json?
+  onboardingNotes      Json?      @map("onboarding_notes")
+  architecturePrinciples Json?    @map("architecture_principles")
+  projectDescription   String?    @map("project_description") @db.Text
+  updatedAt            DateTime   @updatedAt @map("updated_at")
+
+  repository           Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@map("repository_knowledge")
 }
 
