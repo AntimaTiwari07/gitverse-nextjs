@@ -592,8 +592,8 @@ if (existingRepositoryName) {
   async getRepository(id: number, userId: number) {
     const repository = await prisma.repository.findFirst({
       where: {
-        id,
-        userId,
+        id: Number(id),
+        userId: Number(userId),
       },
       include: {
         branches: {
