@@ -8,6 +8,8 @@ import { invalidateGeminiAnalysisCacheForRepository } from "./geminiAnalysisCach
 import { FileChangeType } from "@prisma/client";
 import { repoSyncLimiter } from "../utils/concurrencyLimiter";
 import { withDbRetry } from "../utils/dbRetry";
+import { gitverseConfigParser, ParsedRepositoryKnowledge } from "../parsers/gitverseConfigParser";
+import { repositoryKnowledgeService } from "./repositoryKnowledgeService";
 
 function yieldIfHighMemory(threshold?: number): Promise<void> {
   if (threshold === undefined) {
@@ -648,10 +650,7 @@ if (existingRepositoryName) {
           take: 3,
         },
       },
-      orderBy: [
-        { createdAt: "desc" },
-        { id: "desc" } // Deterministic tie-breaker
-      ],
+      orderBy: { id: "desc" },
     });
 
     let nextCursor: number | undefined = undefined;
