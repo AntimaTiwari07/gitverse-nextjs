@@ -337,6 +337,16 @@ export class GitHubService {
   }
 
   /**
+   * Get collaborators for a repository
+   */
+  async getCollaborators(owner: string, repo: string): Promise<Array<{ login: string; permissions: { admin: boolean; push: boolean; pull: boolean } }>> {
+    const response = await this.client.get(
+      `/repos/${owner}/${repo}/collaborators`
+    );
+    return response.data;
+  }
+
+  /**
    * List pull request files (includes patch hunks when available)
    */
   async getPullRequestFiles(
