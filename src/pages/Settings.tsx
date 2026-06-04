@@ -17,6 +17,7 @@ import {
   Input,
   toast,
   EmptyState,
+  Modal,
 } from "@/components/ui";
 import SettingsSkeleton from "@/components/ui/SettingsSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -450,11 +451,10 @@ export default function Settings() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left ${
-                        activeTab === tab.id
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left ${activeTab === tab.id
                           ? "bg-primary/10 text-primary font-medium"
                           : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       <tab.icon className="h-5 w-5" />
                       <span>{tab.label}</span>
@@ -518,7 +518,7 @@ export default function Settings() {
                     {isGoogleLinked &&
                       !!initialEmailRef.current &&
                       email.trim().toLowerCase() !==
-                        initialEmailRef.current.toLowerCase() && (
+                      initialEmailRef.current.toLowerCase() && (
                         <div className="space-y-2">
                           <label
                             htmlFor="email-change-password"

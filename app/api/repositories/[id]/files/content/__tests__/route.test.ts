@@ -2,6 +2,17 @@ const undici = require("undici");
 (global as any).Request = undici.Request;
 (global as any).Response = undici.Response;
 
+if (!global.AbortSignal) {
+  global.AbortSignal = {} as any;
+}
+if (!global.AbortSignal.timeout) {
+  global.AbortSignal.timeout = (ms: number) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), ms);
+    return controller.signal;
+  };
+}
+
 /**
  * ====================================================================================
  * SECURITY INTEGRATION & ROBUSTNESS TEST SUITE: FILE CONTENT PREVIEW SECURITY BOUNDS

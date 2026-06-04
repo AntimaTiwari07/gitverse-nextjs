@@ -18,7 +18,7 @@ describe('signedState', () => {
     const signed = createSignedState(payload);
 
     expect(signed).toContain('.');
-    
+
     const result = verifySignedState<typeof payload>(signed);
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -34,29 +34,29 @@ describe('signedState', () => {
   it('fails verification if signature is incorrect or signature is modified', () => {
     const payload = { userId: '123' };
     const signed = createSignedState(payload);
-    
+
     // Modify signature part while keeping the same length
     const [body, sigStr] = signed.split('.');
-    
+
     // Decode signature string to Buffer
     const sigBuf = Buffer.from(
       sigStr.replace(/-/g, '+').replace(/_/g, '/') +
-        '==='.slice((sigStr.length + 3) % 4),
+      '==='.slice((sigStr.length + 3) % 4),
       'base64'
     );
-    
+
     // Mutate the first byte
     sigBuf[0] = sigBuf[0] ^ 1;
-    
+
     // Re-encode to base64url
     const badSigStr = sigBuf
       .toString('base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/g, '');
-      
+
     const badSigned = `${body}.${badSigStr}`;
-    
+
     expect(verifySignedState(badSigned)).toEqual({ ok: false, error: 'invalid_signature' });
   });
 

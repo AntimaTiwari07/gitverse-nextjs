@@ -1,14 +1,13 @@
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+import { ReadableStream } from 'stream/web';
 
-const { TextEncoder, TextDecoder } = require("util");
-(global as any).TextEncoder = TextEncoder;
-(global as any).TextDecoder = TextDecoder;
+Object.assign(global, { TextDecoder, TextEncoder, ReadableStream });
 
-const { ReadableStream } = require("node:stream/web");
-(global as any).ReadableStream = ReadableStream;
-
-const undici = require("undici");
-(global as any).Request = undici.Request;
-(global as any).Response = undici.Response;
-(global as any).Headers = undici.Headers;
+const undici = require('undici');
+Object.assign(global, {
+  Request: undici.Request,
+  Response: undici.Response,
+  Headers: undici.Headers,
+});
 
