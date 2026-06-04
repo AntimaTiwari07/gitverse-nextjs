@@ -30,6 +30,7 @@ import { BeginnerGuidanceCard } from "@/components/repository/BeginnerGuidanceCa
 import { BeginnerQuestionsPanel } from "@/components/repository/BeginnerQuestionsPanel";
 import { FirstPRSimulator } from "@/components/repository/FirstPRSimulator";
 import { ContributionPathGenerator } from "@/components/repository/ContributionPathGenerator";
+import { DeadCodeDetector } from "@/components/repository/DeadCodeDetector";
 import { QuickStartChecklist } from "@/components/repository/QuickStartChecklist";
 import { FolderImportanceGuide } from "@/components/repository/FolderImportanceGuide";
 import { SavedModulesPanel } from "@/components/repository/SavedModulesPanel";
@@ -552,6 +553,8 @@ export const RepositoryOverview = ({
         <FirstPRSimulator issue={issueToSimulate} repository={repositoryMetadata} />
 
         <ContributionPathGenerator repository={repositoryMetadata} />
+
+        <DeadCodeDetector repository={repositoryMetadata} />
 
         <BeginnerModeToggle
           enabled={isBeginnerMode}
