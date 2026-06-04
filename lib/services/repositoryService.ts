@@ -638,7 +638,7 @@ export class RepositoryService {
 
     const report = async (update: RepositoryAnalysisProgress) => {
       if (opts?.onProgress) {
-        try { await opts.onProgress(update); } catch {}
+        try { await opts.onProgress(update); } catch { }
       }
     };
 
@@ -668,9 +668,9 @@ export class RepositoryService {
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
-      await report({ 
-        progressPercent: 10 + Math.floor((completedChunks / totalChunks) * 60), 
-        progressMessage: `Analyzing chunk ${i + 1} of ${totalChunks}...` 
+      await report({
+        progressPercent: 10 + Math.floor((completedChunks / totalChunks) * 60),
+        progressMessage: `Analyzing chunk ${i + 1} of ${totalChunks}...`
       });
 
       let aiResponse = await geminiService.analyzeRepository({
@@ -711,9 +711,19 @@ export class RepositoryService {
       type: "architecture-document",
       context: {
         fileTree: `Combined Intermediate Summaries:\n\n${combinedSummaries}`,
-        commits: repository.commits,
-        languages: repository.languages,
-        contributors: repository.contributors
+        commits: repository.commits.map((c) => ({
+          message: c.message,
+          author: c.authorName,
+          date: c.committedAt.toISOString(),
+        })),
+        languages: repository.languages.map((l) => ({
+          name: l.name,
+          percentage: l.percentage,
+        })),
+        contributors: repository.contributors.map((c) => ({
+          name: c.name,
+          commits: c.commits,
+        })),
       }
     });
 
