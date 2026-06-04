@@ -119,12 +119,19 @@ export class RepositoryService {
         throw new Error(`Repository exceeds maximum allowed size of 500MB (${(remoteSize / 1024 / 1024).toFixed(2)}MB).`);
       }
 
-      // For README we don't need all branches; keep it lightweight.
-      gitService = await GitService.cloneRepository(repository.url, tempDir, {
-        depth: 1,
-        noSingleBranch: false,
-        accessToken: token,
-      });
+      const readmeController = new AbortController();
+      const readmeTimeout = setTimeout(() => readmeController.abort(), 5 * 60 * 1000);
+
+      try {
+        gitService = await GitService.cloneRepository(repository.url, tempDir, {
+          depth: 1,
+          noSingleBranch: false,
+          accessToken: token,
+          signal: readmeController.signal,
+        });
+      } finally {
+        clearTimeout(readmeTimeout);
+      }
 
       const scopedPath = repository.targetDirectory
         ? path.join(tempDir, repository.targetDirectory)
@@ -321,7 +328,7 @@ export class RepositoryService {
       });
       const [size, branches] = await Promise.all([
         gitService.getRepositorySize(),
-        gitService.getBranches(),
+        gitService.getBranches(signal),
       ]);
 
       checkAborted();
@@ -332,7 +339,7 @@ export class RepositoryService {
         progressPercent: 25,
         progressMessage: "Fetching commit history...",
       });
-      const commits = await gitService.getCommits("--all", 1000);
+      const commits = await gitService.getCommits("--all", 1000, signal);
 
       checkAborted();
 
@@ -340,7 +347,7 @@ export class RepositoryService {
         progressPercent: 65,
         progressMessage: "Scanning files",
       });
-      const files = await gitService.getFileTree(opts?.scope || repository.targetDirectory || undefined);
+      const files = await gitService.getFileTree(opts?.scope || repository.targetDirectory || undefined, signal);
       checkAborted();
 
       await report({
@@ -353,8 +360,8 @@ export class RepositoryService {
       });
 
       const [contributors, languages] = await Promise.all([
-        gitService.getContributors(),
-        gitService.detectLanguages(repository.targetDirectory ?? undefined),
+        gitService.getContributors(signal),
+        gitService.detectLanguages(repository.targetDirectory ?? undefined, signal),
       ]);
 
       checkAborted();
