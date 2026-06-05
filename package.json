@@ -7,13 +7,8 @@
   },
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=\"--dns-result-order=ipv4first --no-network-family-autoselection\" next dev",
-<<<<<<< chore/add-bundle-analyzer
-    "build": "prisma generate && next build",
-    "analyze": "cross-env ANALYZE=true npm run build",
-=======
     "build": "prisma generate && npm run build:worker && next build",
     "analyze": "cross-env ANALYZE=true next build",
->>>>>>> main
     "typecheck": "prisma generate && rm -f tsconfig.tsbuildinfo && tsc -p tsconfig.json --noEmit",
     "build:worker": "tsc -p tsconfig.worker.json",
     "preworker": "npm run build:worker",
