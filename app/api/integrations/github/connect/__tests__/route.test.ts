@@ -5,12 +5,23 @@
 var mockEncryptToken: jest.Mock;
 var mockValidateEncryptionConfig: jest.Mock;
 
-jest.mock("@/lib/utils/tokenEncryption", () => {
+jest.mock("@/lib/utils/envelopeEncryption", () => {
   mockEncryptToken = jest.fn();
-  mockValidateEncryptionConfig = jest.fn();
   return {
     encryptToken: mockEncryptToken,
+    decryptToken: jest.fn(),
+    isTokenEncrypted: jest.fn(),
+    checkEncryptionHealth: jest.fn(),
+    isKmsConfigured: jest.fn(),
+  };
+});
+
+jest.mock("@/lib/utils/tokenEncryption", () => {
+  mockValidateEncryptionConfig = jest.fn();
+  return {
     validateEncryptionConfig: mockValidateEncryptionConfig,
+    encryptToken: jest.fn(),
+    decryptToken: jest.fn(),
   };
 });
 
@@ -27,6 +38,12 @@ jest.mock("@/lib/prisma", () => ({
       upsert: jest.fn(),
     },
   },
+}));
+
+jest.mock("@/lib/middleware/rateLimit", () => ({
+  checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 10, reset: 0 }),
+  rateLimitResponse: jest.fn(),
+  RATE_LIMITS: { GITHUB_CONNECT: {} },
 }));
 
 jest.mock("@/lib/services/githubService", () => ({
@@ -71,7 +88,7 @@ describe("POST /api/integrations/github/connect", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockEncryptToken.mockImplementation((token) => `encrypted:${token}`);
+    mockEncryptToken.mockImplementation(async (token: string) => `encrypted:${token}`);
   });
 
   describe("encryption pre-flight check", () => {
