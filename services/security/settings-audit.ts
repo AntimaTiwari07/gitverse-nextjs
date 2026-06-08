@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 export interface SettingsChangeEntry {
   userId: number;
   repositoryId?: number;
-  organizationId?: number;
+  organizationId?: string;
   action: string;
   previousValue?: string;
   newValue?: string;

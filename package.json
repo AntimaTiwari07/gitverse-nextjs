@@ -26,7 +26,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "test:validation": "tsx scripts/test-validation.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "cross-env PLAYWRIGHT_TEST=true playwright test",
     "test": "jest",
     "db:seed": "tsx prisma/seed.ts",
     "kms:init": "tsx scripts/kms-init.ts",

@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
     return new Response("Invalid repositoryId", { status: 400 });
   }
 
+  const canonicalRepoId = String(repositoryId);
+
   // 3. Authorize repository access
   const access = await RepositoryAccess.checkAccess(repositoryId, user.userId);
   if (!access.allowed) {
@@ -56,10 +58,10 @@ export async function GET(request: NextRequest) {
 
   const stream = new ReadableStream({
     start(controller) {
-      addClient(repositoryIdStr, { id: clientId, controller });
+      addClient(canonicalRepoId, { id: clientId, controller });
     },
     cancel() {
-      removeClient(repositoryIdStr, clientId);
+      removeClient(canonicalRepoId, clientId);
     }
   });
 

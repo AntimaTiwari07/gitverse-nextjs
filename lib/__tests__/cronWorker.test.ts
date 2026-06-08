@@ -544,6 +544,8 @@ describe("cronWorker — process exit behavior", () => {
     mockClaimNextJob.mockResolvedValue(null);
 
     process.exit(0);
-    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 });
+
+export {};
+

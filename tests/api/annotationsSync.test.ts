@@ -154,4 +154,26 @@ describe('Annotation Sync SSE API', () => {
     // Make sure requireAuth was called with authorization header modified from token parameter
     expect(req.headers.get('authorization')).toBe('Bearer mock-token');
   });
+
+  test('canonicalizes repositoryId when registering client', async () => {
+    vi.mocked(requireAuth).mockResolvedValueOnce({ userId: 1, email: 'user@example.com' });
+    vi.mocked(RepositoryAccess.checkAccess).mockResolvedValueOnce({
+      allowed: true,
+      repositoryExists: true,
+      role: 'REPO_ADMIN',
+    });
+    vi.mocked(checkRateLimit).mockResolvedValueOnce({
+      allowed: true,
+      remaining: 9,
+      resetAt: Date.now() + 60000,
+      limit: 10,
+    });
+
+    const req = new Request('http://localhost/api/annotations/sync?repositoryId=0123') as any;
+    req.nextUrl = new URL(req.url);
+
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    expect(addClient).toHaveBeenCalledWith('123', expect.any(Object));
+  });
 });
