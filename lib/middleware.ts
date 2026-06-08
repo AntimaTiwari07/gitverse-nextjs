@@ -2,6 +2,56 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+interface AuthUser {
+  userId: string;
+  email?: string | null;
+  name?: string | null;
+}
+
+export async function requireAuth(request: NextRequest): Promise<AuthUser> {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  if (!token?.sub) {
+    const error = new Error("Unauthorized");
+    (error as any).status = 401;
+    throw error;
+  }
+
+  return {
+    userId: token.sub,
+    email: "email" in token ? token.email : undefined,
+    name: "name" in token ? token.name : undefined,
+  };
+}
+
+export async function getAuthUser(request: NextRequest): Promise<AuthUser | null> {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  if (!token?.sub) {
+    return null;
+  }
+
+  return {
+    userId: token.sub,
+    email: "email" in token ? token.email : undefined,
+    name: "name" in token ? token.name : undefined,
+  };
+}
+
+export function isHttpError(error: unknown): error is { status: number; message: string } {
+  return (
+    error instanceof Error &&
+    typeof (error as any).status === "number" &&
+    typeof error.message === "string"
+  );
+}
+
 export async function middleware(request: NextRequest) {
   try {
     // Step 1: Get the logged-in user's session token
@@ -31,7 +81,6 @@ export async function middleware(request: NextRequest) {
 
     // Step 5: Everything checks out → allow the request to continue
     return NextResponse.next();
-
   } catch (error) {
     // Step 6: Something went wrong on the server → return 500 error
     console.error("Middleware error:", error);
