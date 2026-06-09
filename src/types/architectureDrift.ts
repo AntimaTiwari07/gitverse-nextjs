@@ -19,10 +19,15 @@ export interface DependencyPath {
 
 export interface ArchitectureModule {
   path: string;
-  name?: string;
+  name: string;
   language?: string;
-  complexity?: number;
-  dependencies?: string[];
+  type: string;
+  size: number;
+  complexity: number;
+  dependencies: string[];
+  dependents: string[];
+  exports: string[];
+  isCircular: boolean;
 }
 
 export interface RepositoryAnalysisData {
@@ -35,20 +40,72 @@ export interface RepositoryAnalysisData {
   metadata?: Record<string, unknown>;
 }
 
+export interface ArchitecturalHealthMetrics {
+  modularity: number;
+  cohesion: number;
+  coupling: number;
+  complexity: number;
+  health: number;
+  trend: "Improving" | "Degrading" | "Stable";
+}
+
+export interface ComplexityMetrics {
+  current: number;
+  previous: number;
+  change: number;
+  percentageChange: number;
+  trend: "Increasing" | "Decreasing" | "Stable";
+}
+
+export interface ArchitecturalChange {
+  module: ArchitectureModule;
+  previousComplexity: number;
+  currentComplexity: number;
+}
+
+export interface DriftReport {
+  from: ArchitectureSnapshot;
+  to: ArchitectureSnapshot;
+  addedModules: ArchitectureModule[];
+  removedModules: ArchitectureModule[];
+  modifiedModules: ArchitecturalChange[];
+  complexityMetrics: ComplexityMetrics;
+  dependencyGrowth: { added: number; removed: number; percentageChange: number };
+  circularDependencyChanges: { added: number; removed: number };
+  riskLevel: "Low" | "Medium" | "High";
+  riskFactors: string[];
+  recommendations: string[];
+}
+
+export interface ArchitectureTimeline {
+  snapshots: ArchitectureSnapshot[];
+  driftReports: DriftReport[];
+  currentIndex: number;
+}
+
+export interface DependencyLink {
+  source: string;
+  target: string;
+  weight: number;
+}
+
 export interface ArchitectureSnapshot {
-  id: string;
-  repositoryId: string;
+  id?: string;
+  repositoryId?: string;
+  commitHash?: string;
   timestamp: Date;
   snapshotDate: string;
-  label?: string;
-  modules?: ArchitectureModule[];
-  metrics?: ArchitectureMetrics;
+  label: string;
+  releaseTag?: string;
+  modules: ArchitectureModule[];
+  metrics: ArchitectureMetrics;
   dependencyGraph: DependencyPath[];
+  dependencies: DependencyLink[];
   totalDependencies: number;
   violationCount: number;
   moduleCount: number;
   layerDistribution: Record<ArchitectureLayer, number>;
-  metadata: {
+  metadata?: {
     analysisVersion: string;
     commitHash?: string;
     analysisDurationMs: number;
@@ -80,7 +137,12 @@ export interface DriftRecommendation {
 }
 
 export interface ArchitectureMetrics {
+  moduleCount: number;
   totalDependencies: number;
+  dependencyCount: number;
+  circularDependencyCount: number;
+  averageCoupling: number;
+  complexityScore: number;
   criticalViolations: number;
   highViolations: number;
   mediumViolations: number;
