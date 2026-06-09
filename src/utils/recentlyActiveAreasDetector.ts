@@ -11,7 +11,6 @@ import {
   ActivityTrend,
   HotspotArea,
   ActivityRecommendation,
-  ContributorActivity,
   ActivityMetrics,
   TIME_WINDOWS,
   ACTIVITY_LEVEL_THRESHOLDS,
@@ -73,7 +72,7 @@ export function analyzeRecentActivity(
   const hotspots = identifyHotspots(activeAreas);
 
   // Generate recommendations
-  const recommendations = generateActivityRecommendations(activeAreas, hotspots);
+  const recommendations = generateActivityRecommendations(activeAreas);
 
   // Calculate trends
   const trends = calculateActivityTrends(commits, windowDays);
@@ -308,8 +307,7 @@ function identifyHotspots(areas: AreaActivity[]): HotspotArea[] {
  * Generates activity recommendations
  */
 function generateActivityRecommendations(
-  areas: AreaActivity[],
-  hotspots: HotspotArea[]
+  areas: AreaActivity[]
 ): ActivityRecommendation[] {
   const recommendations: ActivityRecommendation[] = [];
 
@@ -424,7 +422,7 @@ function createEmptyAreaActivity(path: string): AreaActivity {
  * Generates mock commit history for testing
  */
 function generateMockCommitHistory(
-  repository: RepositoryAnalysisData | undefined,
+  _repository: RepositoryAnalysisData | undefined,
   startDate: Date,
   endDate: Date
 ): CommitInfo[] {

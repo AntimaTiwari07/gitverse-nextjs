@@ -6,11 +6,7 @@
 import {
   RecentActivityAnalysis,
   AreaActivity,
-  ActivityMetrics,
-  TimeWindow,
-  TIME_WINDOWS,
 } from "@/types/recentlyActiveAreas";
-import { getActivityLevelDisplay, getVelocityDisplay, formatLargeNumber } from "@/config/recentlyActiveAreasConfig";
 
 /**
  * Formats activity score with interpretation

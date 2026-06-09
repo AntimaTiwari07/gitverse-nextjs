@@ -20,21 +20,18 @@ import {
   calculateActivityMetrics,
 } from "@/utils/recentlyActiveAreasDetector";
 import {
-  formatActivityScore,
   generateActivitySummary,
   formatTimeWindow,
   generateActivityInsights,
   suggestNextActions,
   formatDateDiff,
-  calculatePercentage,
-  rankAreasByActivityType,
+
 } from "@/utils/recentlyActiveAreasHelpers";
 import {
   getActivityLevelDisplay,
   getVelocityDisplay,
   getHealthIndicatorDisplay,
   AREA_TYPE_ICONS,
-  DEFAULT_ACTIVITY_CONFIG,
 } from "@/config/recentlyActiveAreasConfig";
 
 interface RecentlyActiveAreasPanelProps {
@@ -64,7 +61,6 @@ export function RecentlyActiveAreasPanel({
   const summary = analysis ? generateActivitySummary(analysis) : null;
   const insights = analysis ? generateActivityInsights(analysis) : [];
   const nextActions = analysis ? suggestNextActions(analysis) : [];
-  const ranked = analysis ? rankAreasByActivityType(analysis.topActiveAreas) : {};
 
   return (
     <div className="space-y-6">
@@ -87,7 +83,7 @@ export function RecentlyActiveAreasPanel({
                 onChange={(e) => setTimeWindow(e.target.value as TimeWindow)}
                 className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {Object.entries(TIME_WINDOWS).map(([key, value]) => (
+                {Object.entries(TIME_WINDOWS).map(([key]) => (
                   <option key={key} value={key}>
                     {formatTimeWindow(key as TimeWindow)}
                   </option>
@@ -133,7 +129,7 @@ export function RecentlyActiveAreasPanel({
                   Most Active Areas ({analysis.topActiveAreas.length})
                 </h3>
                 <div className="space-y-3">
-                  {analysis.topActiveAreas.slice(0, 5).map((area, index) => {
+                  {analysis.topActiveAreas.slice(0, 5).map((area) => {
                     const display = getActivityLevelDisplay(area.activityScore);
                     const velocityDisplay = getVelocityDisplay(area.changeVelocity);
 

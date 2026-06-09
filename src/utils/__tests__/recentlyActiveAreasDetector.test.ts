@@ -19,13 +19,13 @@ import { RepositoryAnalysisData } from "@/types/contributionPath";
 describe("Recently Active Areas Detector", () => {
   const mockRepository: RepositoryAnalysisData = {
     files: [
-      "src/components/Button.tsx",
-      "src/components/Card.tsx",
-      "src/services/authService.ts",
-      "src/services/apiService.ts",
-      "app/api/route.ts",
-      "lib/auth.ts",
-      "prisma/schema.prisma",
+      { path: "src/components/Button.tsx", name: "Button.tsx", language: "typescript" },
+      { path: "src/components/Card.tsx", name: "Card.tsx", language: "typescript" },
+      { path: "src/services/authService.ts", name: "authService.ts", language: "typescript" },
+      { path: "src/services/apiService.ts", name: "apiService.ts", language: "typescript" },
+      { path: "app/api/route.ts", name: "route.ts", language: "typescript" },
+      { path: "lib/auth.ts", name: "auth.ts", language: "typescript" },
+      { path: "prisma/schema.prisma", name: "schema.prisma", language: "prisma" },
     ],
     commitHash: "abc123",
     analysisDate: new Date(),

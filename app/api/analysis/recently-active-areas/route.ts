@@ -13,12 +13,6 @@ interface ActivityAnalysisRequest {
   maxAreasToShow?: number;
 }
 
-interface ActivityAnalysisResponse {
-  success: boolean;
-  data?: any;
-  message?: string;
-}
-
 /**
  * POST - Analyze recent activity in a repository
  */

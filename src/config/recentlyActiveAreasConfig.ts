@@ -128,7 +128,7 @@ export function getVelocityDisplay(velocity: string): {
   icon: string;
 } {
   const desc = VELOCITY_DESCRIPTIONS[velocity as keyof typeof VELOCITY_DESCRIPTIONS] || "Unknown";
-  let color = CHANGE_VELOCITY_COLORS.stable;
+  let color: string = CHANGE_VELOCITY_COLORS.stable;
   let icon = "→";
 
   if (velocity === "accelerating") {
