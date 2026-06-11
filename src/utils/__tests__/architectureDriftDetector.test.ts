@@ -21,14 +21,14 @@ import { RepositoryAnalysisData } from "@/types/contributionPath";
 describe("Architecture Drift Detector", () => {
   const mockRepository: RepositoryAnalysisData = {
     files: [
-      "src/components/Button.tsx",
-      "src/components/Card.tsx",
-      "src/services/authService.ts",
-      "src/services/apiService.ts",
-      "prisma/schema.prisma",
-      "src/lib/utils.ts",
-      "src/config/constants.ts",
-      "src/api/route.ts",
+      { path: "src/components/Button.tsx" },
+      { path: "src/components/Card.tsx" },
+      { path: "src/services/authService.ts" },
+      { path: "src/services/apiService.ts" },
+      { path: "prisma/schema.prisma" },
+      { path: "src/lib/utils.ts" },
+      { path: "src/config/constants.ts" },
+      { path: "src/api/route.ts" },
     ],
     commitHash: "abc123",
     analysisDate: new Date(),

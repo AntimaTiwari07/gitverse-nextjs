@@ -86,10 +86,6 @@ export interface RepositoryAnalysisData {
     averageContributorCommits?: number;
   };
   issues?: Array<{ id?: string | number; title?: string; labels?: Array<{ name: string }>; state?: string }>;
-  commitHash?: string;
-  analysisDate?: Date;
-  totalFiles?: number;
-  insights?: string[];
   metadata?: Record<string, unknown>;
 }
 

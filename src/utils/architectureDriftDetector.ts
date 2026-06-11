@@ -94,6 +94,7 @@ export function generateArchitectureSnapshot(
   const averageCoupling = moduleCount > 0 ? totalDependencies / moduleCount : 0;
 
   const metrics = {
+    moduleCount,
     totalDependencies,
     dependencyCount: totalDependencies,
     circularDependencyCount: 0,
