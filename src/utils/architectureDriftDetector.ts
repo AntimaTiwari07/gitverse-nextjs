@@ -115,6 +115,7 @@ export function generateArchitectureSnapshot(
     repositoryId,
     timestamp: new Date(),
     snapshotDate: new Date().toISOString().split("T")[0],
+    label: "Current Snapshot",
     dependencyGraph,
     dependencies: dependencyGraph.map(({ source, target }) => ({ source, target, weight: 1 })),
     modules: [],
