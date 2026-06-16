@@ -49,9 +49,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, name } = body;
 
-    if (!email || !password || !name) {
+    if (
+      !email || typeof email !== "string" ||
+      !password || typeof password !== "string" ||
+      !name || typeof name !== "string"
+    ) {
       return NextResponse.json(
-        { error: "Email, password, and name are required" },
+        { error: "Email, password, and name are required and must be valid strings" },
         { status: 400 }
       );
     }

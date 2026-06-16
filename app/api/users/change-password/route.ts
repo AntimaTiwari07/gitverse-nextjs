@@ -9,9 +9,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { currentPassword, newPassword } = body;
 
-    if (!newPassword) {
+    if (!newPassword || typeof newPassword !== "string") {
       return NextResponse.json(
-        { error: "New password is required" },
+        { error: "New password is required and must be a string" },
         { status: 400 }
       );
     }
@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
     const passwordHash =
       userDetails.passwordHash || (userDetails as any).password;
     if (passwordHash) {
-      if (!currentPassword) {
+      if (!currentPassword || typeof currentPassword !== "string") {
         return NextResponse.json(
-          { error: "Current password is required" },
+          { error: "Current password is required and must be a string" },
           { status: 400 }
         );
       }
