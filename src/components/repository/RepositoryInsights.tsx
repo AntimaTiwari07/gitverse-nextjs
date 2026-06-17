@@ -5,6 +5,7 @@ import { CodeMetrics } from './CodeMetrics'
 import RepositoryLearningPath from "./RepositoryLearningPath";
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import RepositoryEvolutionTimeline from "./RepositoryEvolutionTimeline";
+import ContributorIssueRecommendations from "./ContributorIssueRecommendations";
 import { useState } from 'react'
 import { toast } from '@/hooks/use-toast'
 import axios from 'axios'
@@ -261,6 +262,9 @@ export function RepositoryInsights({
 
       {/* Repository Evolution Timeline */}
       <RepositoryEvolutionTimeline />
+
+      {/* Contributor Skill-Based Issue Recommendations */}
+      <ContributorIssueRecommendations />
 
     </div>
   )
