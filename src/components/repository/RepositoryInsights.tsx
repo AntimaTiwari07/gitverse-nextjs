@@ -2,6 +2,7 @@ import { CommitActivityHeatmap } from '@/components/visualizations/CommitActivit
 import { CodeDependencyGraph } from '@/components/visualizations/CodeDependencyGraph'
 import { LanguageDistributionChart } from '@/components/visualizations/LanguageDistributionChart'
 import { CodeMetrics } from './CodeMetrics'
+import RepositoryLearningPath from "./RepositoryLearningPath";
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { useState } from 'react'
 import { toast } from '@/hooks/use-toast'
@@ -253,6 +254,9 @@ export function RepositoryInsights({
 
       {/* Code Metrics Section */}
       <CodeMetrics repository={repository} />
+
+      {/* AI Repository Learning Path */}
+      <RepositoryLearningPath repository={repository} />
 
     </div>
   )
